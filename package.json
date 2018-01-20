@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/ncgreco1440/overtop.logger/issues"
   },
-  "homepage": "https://github.com/ncgreco1440/overtop.logger#readme"
+  "homepage": "https://github.com/ncgreco1440/overtop.logger#readme",
+  "dependencies": {
+    "winston": "^2.4.0"
+  }
 }
