@@ -1,8 +1,14 @@
 # overtop.logger
 ---
 
+Author: Nico Greco
+Contact: nico@nicogreco.com
+Version: 1.0.0
+
 Logging mechanism for Overtop NodeJS applications
 ---
+
+This package is a wrapper for the winston logging api, which also interfaces with mongodb client api to store logs as documents within specified collections.
 
 | Dependencies |
 |--------------|
