@@ -1,0 +1,24 @@
+{
+  "name": "overtop.logger",
+  "version": "1.0.0",
+  "description": "Logging mechanism for Overtop NodeJS applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ncgreco1440/overtop.logger.git"
+  },
+  "keywords": [
+    "Logger",
+    "Winston",
+    "MongoDB"
+  ],
+  "author": "Nico Greco",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ncgreco1440/overtop.logger/issues"
+  },
+  "homepage": "https://github.com/ncgreco1440/overtop.logger#readme"
+}
