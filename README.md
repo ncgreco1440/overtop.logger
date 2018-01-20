@@ -8,4 +8,4 @@ Logging mechanism for Overtop NodeJS applications
 
 | Dependencies |
 |--------------|
-| winston      |
+| [winston](https://github.com/winstonjs/winston) |
