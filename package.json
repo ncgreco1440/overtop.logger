@@ -4,7 +4,8 @@
   "description": "Logging mechanism for Overtop NodeJS applications",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "mocha",
+    "test-debug": "mocha --inspect-brk --inspect"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,7 @@
   },
   "homepage": "https://github.com/ncgreco1440/overtop.logger#readme",
   "dependencies": {
-    "winston": "^2.4.0"
+    "winston": "^3.0.0-rc1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
