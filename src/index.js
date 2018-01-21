@@ -1,4 +1,6 @@
 var winston = require('winston');
+var moment = require('moment');
+moment().format();
 
 const validate = {
 	typeOfObject: function(arg) {
@@ -45,9 +47,22 @@ var logger = function(config) {
 		throw new Error('\'config\' was missing one or many of the mandatory properties. \'level\', \'format\', \'transports\'');
 
 	this.winstonHandle = null;
+	this.dailyTimer = null;
+	this.currentTime = null;
+	// Time, in milliseconds, until Midnight
+	this.timeTilMidnight = null;
+	this.dailyThreshold = null;
+	// Time, in milliseconds, within 24 hours;
+	this.twentyFourHourExt = 1000 * 60 * 60 * 24;
 
 	try {
 		this.winstonHandle = winston.createLogger(winstonParseConfig(config));
+		this.currentTime = Date.now();
+		this.timeTilMidnight = ((((24 - (moment().hour() + 1)) * 60 * 60) + 
+			((60 - (moment().minute() + 1)) * 60) + 
+			(60 - (moment().second() + 1))) * 1000) +
+			(1000 - (moment().millisecond() + 1));
+		this.dailyThreshold = this.currentTime + this.timeTilMidnight;
 	}catch(e) {
 		throw e;
 	}
@@ -58,6 +73,8 @@ logger.prototype.handle = function() {
 };
 
 logger.prototype.log = function(lvl, req, status, details) {
+	if(Date.now() > this.dailyThreshold)
+		this.dailyThreshold += this.twentyFourHourExt;
 	return this.winstonHandle.log({
 		'level': lvl,
 		'protocol': req.protocol,
