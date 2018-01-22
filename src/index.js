@@ -1,6 +1,5 @@
 var winston = require('winston');
-var moment = require('moment');
-moment().format();
+const clock = require('./clock');
 
 const validate = {
 	typeOfObject: function(arg) {

@@ -4,13 +4,13 @@ const logFiles = {
 	info: 'test.log'
 };
 
-describe('overtop.logger require statement', function() {
+describe.skip('overtop.logger require statement', function() {
 	it('should return a function', function() {
 		assert.isFunction(logger, 'logger is a function!');
 	});
 });
 
-describe('overtop.logger constructor', function() {
+describe.skip('overtop.logger constructor', function() {
 	it('should throw an error if an object is not passed in as an argument [number]', function() {
 		assert.throws(() => {
 			var x = new logger(123);
@@ -53,7 +53,7 @@ describe('overtop.logger constructor', function() {
 	});
 });
 
-describe('Writing to the logs', function() {
+describe.skip('Writing to the logs', function() {
 	var log = null, 
 		req = {
 			protocol: 'HTTP',
