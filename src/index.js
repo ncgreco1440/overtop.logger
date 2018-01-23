@@ -21,7 +21,7 @@ const winstonParseConfig = function(arg) {
 
 	arg.transports.forEach((transport) => {
 		obj.transports.push(new winston.transports.File({
-			filename: transport.filepath, 
+			filename: appendDate(transport.filepath), 
 			level: transport.level
 		}));
 	});
@@ -37,6 +37,11 @@ const validateLogParams = function(arg) {
 		arg.req.hasOwnProperty('url');
 
 	return  
+};
+
+const appendDate = function(filename) {
+	var f = filename.split('.');
+	return f[0]+'_'+clock.date('EST')+'.'+f[1];
 };
 
 var logger = function(config) {
@@ -58,70 +63,34 @@ var logger = function(config) {
 		this.winstonHandle = winston.createLogger(winstonParseConfig(config));
 		this.currentTime = Date.now();
 		this.dailyThreshold = clock.eod();
-		// this.timeTilMidnight = ((((24 - (moment().hour() + 1)) * 60 * 60) + 
-		// 	((60 - (moment().minute() + 1)) * 60) + 
-		// 	(60 - (moment().second() + 1))) * 1000) +
-		// 	(1000 - (moment().millisecond() + 1));
 	}catch(e) {
 		throw e;
 	}
 };
 
-logger.prototype = {
-	handle: {
-		value: function() {
-			return this.winstonHandle;
-		},
-		enumerable: false,
-		configurable: false,
-		writeable: false
-	},
-	log: {
-		value: function(lvl, req, status, details) {
-			if(Date.now() > this.dailyThreshold)
-				this.dailyThreshold += this.twentyFourHourExt;
-			return this.winstonHandle.log({
-				'level': lvl,
-				'protocol': req.protocol,
-				'secure': req.secure,
-				'status': status,
-				'method': req.method,
-				'ip': req.ip,
-				'timestamp': Date.now(),
-				'url': req.baseUrl,
-				'originalUrl': req.originalUrl,
-				'params': req.params,
-				'query': req.query,
-				'details': (!details) ? false : details 
-			});
-		},
-		enumerable: false,
-		configurable: false,
-		writeable: false
-	}
+logger.prototype.handle = function() {
+	return this.winstonHandle;
 };
 
-// logger.prototype.handle = function() {
-// 	return this.winstonHandle;
-// };
-
-// logger.prototype.log = function(lvl, req, status, details) {
-// 	if(Date.now() > this.dailyThreshold)
-// 		this.dailyThreshold += this.twentyFourHourExt;
-// 	return this.winstonHandle.log({
-// 		'level': lvl,
-// 		'protocol': req.protocol,
-// 		'secure': req.secure,
-// 		'status': status,
-// 		'method': req.method,
-// 		'ip': req.ip,
-// 		'timestamp': Date.now(),
-// 		'url': req.baseUrl,
-// 		'originalUrl': req.originalUrl,
-// 		'params': req.params,
-// 		'query': req.query,
-// 		'details': (!details) ? false : details 
-// 	});
-// };
+logger.prototype.log = function(lvl, req, status, details) {
+	if(Date.now() > this.dailyThreshold) {
+		this.dailyThreshold += this.twentyFourHourExt;
+		//TODO...update the transports.
+	}
+	return this.winstonHandle.log({
+		'level': lvl,
+		'protocol': req.protocol,
+		'secure': req.secure,
+		'status': status,
+		'method': req.method,
+		'ip': req.ip,
+		'timestamp': clock.timestamp(),
+		'url': req.baseUrl,
+		'originalUrl': req.originalUrl,
+		'params': req.params,
+		'query': req.query,
+		'details': (!details) ? false : details 
+	});
+};
 
 module.exports = logger;
