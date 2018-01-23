@@ -57,37 +57,71 @@ var logger = function(config) {
 	try {
 		this.winstonHandle = winston.createLogger(winstonParseConfig(config));
 		this.currentTime = Date.now();
-		this.timeTilMidnight = ((((24 - (moment().hour() + 1)) * 60 * 60) + 
-			((60 - (moment().minute() + 1)) * 60) + 
-			(60 - (moment().second() + 1))) * 1000) +
-			(1000 - (moment().millisecond() + 1));
-		this.dailyThreshold = this.currentTime + this.timeTilMidnight;
+		this.dailyThreshold = clock.eod();
+		// this.timeTilMidnight = ((((24 - (moment().hour() + 1)) * 60 * 60) + 
+		// 	((60 - (moment().minute() + 1)) * 60) + 
+		// 	(60 - (moment().second() + 1))) * 1000) +
+		// 	(1000 - (moment().millisecond() + 1));
 	}catch(e) {
 		throw e;
 	}
 };
 
-logger.prototype.handle = function() {
-	return this.winstonHandle;
+logger.prototype = {
+	handle: {
+		value: function() {
+			return this.winstonHandle;
+		},
+		enumerable: false,
+		configurable: false,
+		writeable: false
+	},
+	log: {
+		value: function(lvl, req, status, details) {
+			if(Date.now() > this.dailyThreshold)
+				this.dailyThreshold += this.twentyFourHourExt;
+			return this.winstonHandle.log({
+				'level': lvl,
+				'protocol': req.protocol,
+				'secure': req.secure,
+				'status': status,
+				'method': req.method,
+				'ip': req.ip,
+				'timestamp': Date.now(),
+				'url': req.baseUrl,
+				'originalUrl': req.originalUrl,
+				'params': req.params,
+				'query': req.query,
+				'details': (!details) ? false : details 
+			});
+		},
+		enumerable: false,
+		configurable: false,
+		writeable: false
+	}
 };
 
-logger.prototype.log = function(lvl, req, status, details) {
-	if(Date.now() > this.dailyThreshold)
-		this.dailyThreshold += this.twentyFourHourExt;
-	return this.winstonHandle.log({
-		'level': lvl,
-		'protocol': req.protocol,
-		'secure': req.secure,
-		'status': status,
-		'method': req.method,
-		'ip': req.ip,
-		'timestamp': Date.now(),
-		'url': req.baseUrl,
-		'originalUrl': req.originalUrl,
-		'params': req.params,
-		'query': req.query,
-		'details': (!details) ? false : details 
-	});
-};
+// logger.prototype.handle = function() {
+// 	return this.winstonHandle;
+// };
+
+// logger.prototype.log = function(lvl, req, status, details) {
+// 	if(Date.now() > this.dailyThreshold)
+// 		this.dailyThreshold += this.twentyFourHourExt;
+// 	return this.winstonHandle.log({
+// 		'level': lvl,
+// 		'protocol': req.protocol,
+// 		'secure': req.secure,
+// 		'status': status,
+// 		'method': req.method,
+// 		'ip': req.ip,
+// 		'timestamp': Date.now(),
+// 		'url': req.baseUrl,
+// 		'originalUrl': req.originalUrl,
+// 		'params': req.params,
+// 		'query': req.query,
+// 		'details': (!details) ? false : details 
+// 	});
+// };
 
 module.exports = logger;
