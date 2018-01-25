@@ -1,16 +1,17 @@
 const assert = require('chai').assert;
+const lolex = require('lolex');
 var logger = require('./../index.js');
 const logFiles = {
 	info: 'test.log'
 };
 
-describe('overtop.logger require statement', function() {
+describe.skip('overtop.logger require statement', function() {
 	it('should return a function', function() {
 		assert.isFunction(logger, 'logger is a function!');
 	});
 });
 
-describe('overtop.logger constructor', function() {
+describe.skip('overtop.logger constructor', function() {
 	it('should throw an error if an object is not passed in as an argument [number]', function() {
 		assert.throws(() => {
 			var x = new logger(123);
@@ -53,7 +54,7 @@ describe('overtop.logger constructor', function() {
 	});
 });
 
-describe('Writing to the logs', function() {
+describe.skip('Writing to the logs', function() {
 	var log = null, 
 		req = {
 			protocol: 'HTTP',
@@ -88,6 +89,19 @@ describe('Writing to the logs', function() {
 	});
 
 	it('should succeed even with a lack of details', function() {
+		assert.isOk(log.log('info', 200, req));
+	});
+
+	it('should write to a new log file when a day has passed.', function() {
+		var clock = null, currentTime = Date.now(); 
+
+		clock = lolex.install({
+			now: currentTime
+		});
+
+		log.log('info', 200, req);
+		clock.setSystemTime(currentTime + (1000*60*60*24));
+		clock.uninstall();
 		assert.isOk(log.log('info', 200, req));
 	});
 });

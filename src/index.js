@@ -48,9 +48,17 @@ const addTransports = function() {
 
 const updateTransports = function() {
 	debugger;
-	var info = this.infoTransport.filename,	
-		error = this.errorTransport.filename,
-		warning = this.warningTransport.filename;
+	var infoFilepath = this.infoTransport.filename;
+	this.winstonHandle.remove(this.infoTransport);
+	this.winstonHandle.remove(this.errorTransport);
+	this.winstonHandle.remove(this.warningTransport);
+
+	this.infoTransport = new winston.transports.File({
+		filename: appendDate(infoFilepath),
+		level: 'info'
+	});
+
+	this.winstonHandle.add(this.infoTransport);
 };
 
 const winstonParseConfig = function(config) {
