@@ -1,5 +1,6 @@
 var winston = require('winston');
 const clock = require('./clock');
+const Transport = require('./transport');
 
 const validate = {
 	typeOfObject: function(arg) {
@@ -15,25 +16,16 @@ const validate = {
 const setTransportHandle = function(transport) {
 	switch(transport.level) {
 		case 'info': {
-			this.infoTransport = new winston.transports.File({
-				filename: appendDate(transport.filepath), 
-				level: transport.level
-			});
+			this.infoTransport = new Transport(transport);
 			break;
 		}
 		case 'error': {
-			this.errorTransport = new winston.transports.File({
-				filename: appendDate(transport.filepath), 
-				level: transport.level
-			});
+			this.errorTransport = new Transport(transport);
 			break;
 		}
 		case 'warn': {}
 		case 'warning': {
-			this.warningTransport =	new winston.transports.File({
-				filename: appendDate(transport.filepath), 
-				level: transport.level
-			});
+			this.warningTransport =	new Transport(transport);
 			break;
 		}
 		default: {}
@@ -41,24 +33,21 @@ const setTransportHandle = function(transport) {
 };
 
 const addTransports = function() {
-	if(this.infoTransport) this.winstonHandle.add(this.infoTransport);
-	if(this.errorTransport) this.winstonHandle.add(this.errorTransport);
-	if(this.warningTransport) this.winstonHandle.add(this.warningTransport);
+	if(this.infoTransport) this.infoTransport.add(this.winstonHandle);
+	if(this.errorTransport) this.errorTransport.add(this.winstonHandle);
+	if(this.warningTransport) this.warningTransport.add(this.winstonHandle);
 };
 
-const updateTransports = function() {
-	debugger;
-	var infoFilepath = this.infoTransport.filename;
+const removeTransports = function() {
 	this.winstonHandle.remove(this.infoTransport);
 	this.winstonHandle.remove(this.errorTransport);
 	this.winstonHandle.remove(this.warningTransport);
+};
 
-	this.infoTransport = new winston.transports.File({
-		filename: appendDate(infoFilepath),
-		level: 'info'
-	});
-
-	this.winstonHandle.add(this.infoTransport);
+const updateTransports = function() {
+	this.$$removeTransports();
+	this.infoTransport.update(this.winstonHandle);
+	this.$$addTransports();
 };
 
 const winstonParseConfig = function(config) {
@@ -90,9 +79,8 @@ const appendDate = function(filename) {
 	return f[0]+'_'+clock.date('EST')+'.'+f[1];
 };
 
-var logger = function(config) {
-	var runConfiguration = winstonParseConfig.bind(this, config),
-		addLoggingTransports = addTransports.bind(this);
+var Logger = function(config) {
+	var $$runConfiguration = winstonParseConfig.bind(this, config);
 
 	if(!validate.typeOfObject(config))
 		throw new Error('\'config\' was not an object.');
@@ -105,25 +93,27 @@ var logger = function(config) {
 	this.infoTransport = null;
 	this.errorTransport = null;
 	this.warningTransport = null;
-	this.updateTransports = updateTransports.bind(this);
+	this.$$updateTransports = updateTransports.bind(this);
+	this.$$removeTransports = removeTransports.bind(this);
+	this.$$addTransports = addTransports.bind(this);
 
 	try {
-		this.winstonHandle = winston.createLogger(runConfiguration());
-		addLoggingTransports();
+		this.winstonHandle = winston.createLogger($$runConfiguration());
+		this.$$addTransports();
 		this.dailyThreshold = clock.eod();
 	}catch(e) {
 		throw e;
 	}
 };
 
-logger.prototype.handle = function() {
+Logger.prototype.handle = function() {
 	return this.winstonHandle;
 };
 
-logger.prototype.log = function(lvl, req, status, details) {
+Logger.prototype.log = function(lvl, req, status, details) {
 	if(Date.now() > this.dailyThreshold) {
 		this.dailyThreshold += this.twentyFourHourExt;
-		this.updateTransports();
+		this.$$updateTransports();
 	}
 	return this.winstonHandle.log({
 		'level': lvl,
@@ -141,4 +131,4 @@ logger.prototype.log = function(lvl, req, status, details) {
 	});
 };
 
-module.exports = logger;
+module.exports = Logger;

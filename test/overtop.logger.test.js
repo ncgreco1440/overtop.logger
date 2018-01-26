@@ -1,49 +1,49 @@
 const assert = require('chai').assert;
 const lolex = require('lolex');
-var logger = require('./../index.js');
+var Logger = require('./../index.js');
 const logFiles = {
 	info: 'test.log'
 };
 
-describe.skip('overtop.logger require statement', function() {
+describe('overtop.logger require statement', function() {
 	it('should return a function', function() {
-		assert.isFunction(logger, 'logger is a function!');
+		assert.isFunction(Logger, 'logger is a function!');
 	});
 });
 
-describe.skip('overtop.logger constructor', function() {
+describe('overtop.logger constructor', function() {
 	it('should throw an error if an object is not passed in as an argument [number]', function() {
 		assert.throws(() => {
-			var x = new logger(123);
+			var x = new Logger(123);
 		}, Error);
 	});
 
 	it('should throw an error if an object is not passed in as an argument [string]', function() {
 		assert.throws(() => {
-			var x = new logger('Hello, World');
+			var x = new Logger('Hello, World');
 		}, Error);
 	});
 
 	it('should throw an error if an object is not passed in as an argument [array]', function() {
 		assert.throws(() => {
-			var x = new logger(['H', 'A', 'P', 'P', 'Y']);
+			var x = new Logger(['H', 'A', 'P', 'P', 'Y']);
 		}, Error);
 	});
 
 	it('should throw an error if an object is not passed in as an argument [boolean]', function() {
 		assert.throws(() => {
-			var x = new logger(true);
+			var x = new Logger(true);
 		}, Error);
 	});
 
 	it('should throw an error if an object does not contain the appropriate properties', function() {
 		assert.throws(() => {
-			var x = new logger({});
+			var x = new Logger({});
 		}, Error);
 	});
 
 	it('should be able to return a handle to the winston instance if all went well', function() {
-		var log = new logger({
+		var log = new Logger({
 			level: 'info',
 			format: 'json',
 			transports: [
@@ -54,8 +54,9 @@ describe.skip('overtop.logger constructor', function() {
 	});
 });
 
-describe.skip('Writing to the logs', function() {
+describe('Writing to the logs', function() {
 	var log = null, 
+		lolexClock = null,
 		req = {
 			protocol: 'HTTP',
 			secure: false,
@@ -71,7 +72,8 @@ describe.skip('Writing to the logs', function() {
 		};
 
 	beforeEach(function() {
-		log = new logger({
+		lolexClock = lolex.install({now: 0});
+		log = new Logger({
 			level: 'info',
 			format: 'json',
 			transports: [
@@ -82,6 +84,8 @@ describe.skip('Writing to the logs', function() {
 
 	afterEach(function() {
 		log = null;
+		lolexClock.uninstall();
+		lolexClock = null;
 	});
 
 	it('should be successful', function() {
@@ -92,16 +96,27 @@ describe.skip('Writing to the logs', function() {
 		assert.isOk(log.log('info', 200, req));
 	});
 
-	it('should write to a new log file when a day has passed.', function() {
-		var clock = null, currentTime = Date.now(); 
-
-		clock = lolex.install({
-			now: currentTime
-		});
+	it('should write to a new log file when a day has passed.', function(done) {
+		var fs = require('fs'); 
 
 		log.log('info', 200, req);
-		clock.setSystemTime(currentTime + (1000*60*60*24));
-		clock.uninstall();
-		assert.isOk(log.log('info', 200, req));
+		lolexClock.setSystemTime(Date.now() + (1000*60*60*24));
+		log.log('info', 200, req);
+		fs.open('./test_1969_12_31_Wed.log', 'r', (err, fd) => {
+			if(err) {
+				done(err);
+			}else{
+				var fd1 = fd;
+				fs.open('./test_1970_01_01_Thur.log', 'r', (err, fd) => {
+					if(err) {
+						done(err);
+					}else{
+						assert.isOk(fd1);
+						assert.isOk(fd);
+						done();
+					}
+				});
+			}
+		});
 	});
 });
