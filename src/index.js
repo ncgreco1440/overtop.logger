@@ -1,6 +1,7 @@
 var winston = require('winston');
-const clock = require('./clock');
+const Clock = require('./clock');
 const Transport = require('./transport');
+const Handler = require('./handler');
 
 const validate = {
 	typeOfObject: function(arg) {
@@ -74,11 +75,6 @@ const validateLogParams = function(arg) {
 	return  
 };
 
-const appendDate = function(filename) {
-	var f = filename.split('.');
-	return f[0]+'_'+clock.date('EST')+'.'+f[1];
-};
-
 var Logger = function(config) {
 	var $$runConfiguration = winstonParseConfig.bind(this, config);
 
@@ -100,7 +96,7 @@ var Logger = function(config) {
 	try {
 		this.winstonHandle = winston.createLogger($$runConfiguration());
 		this.$$addTransports();
-		this.dailyThreshold = clock.eod();
+		this.dailyThreshold = Clock.eod();
 	}catch(e) {
 		throw e;
 	}
@@ -115,6 +111,11 @@ Logger.prototype.log = function(lvl, req, status, details) {
 		this.dailyThreshold += this.twentyFourHourExt;
 		this.$$updateTransports();
 	}
+
+	// Handler(details, (x) => {
+	// 	console.log(x);
+	// });
+
 	return this.winstonHandle.log({
 		'level': lvl,
 		'protocol': req.protocol,
@@ -122,7 +123,7 @@ Logger.prototype.log = function(lvl, req, status, details) {
 		'status': status,
 		'method': req.method,
 		'ip': req.ip,
-		'timestamp': clock.timestamp(),
+		'timestamp': Clock.timestamp(),
 		'url': req.baseUrl,
 		'originalUrl': req.originalUrl,
 		'params': req.params,
@@ -130,5 +131,9 @@ Logger.prototype.log = function(lvl, req, status, details) {
 		'details': (!details) ? false : details 
 	});
 };
+
+// Logger.prototype.attach = function(err, req, res, next) {
+// 	next();
+// };
 
 module.exports = Logger;
