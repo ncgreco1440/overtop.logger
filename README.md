@@ -15,8 +15,12 @@ This package is a wrapper for the winston logging api, which also interfaces wit
 | Dependencies |
 |--------------|
 | [winston](https://github.com/winstonjs/winston) |
+| [moment]() |
 
 | Dev Dependencies |
 |------------------|
 | [mocha](https://github.com/mochajs/mocha) |
 | [chai](https://github.com/chaijs/chai) |
+| [chai-fs]() |
+| [sinon]() |
+| [lolex]() |
