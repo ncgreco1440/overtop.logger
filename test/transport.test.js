@@ -12,6 +12,7 @@ describe('Transport', function() {
             var clk = lolex.install({now: 0}), 
                 t = new Transport({
                     level: 'info',
+                    dirname: './logs/info/',
                     filename: 'test.log',
                     extension: '.log'
                 });
@@ -34,6 +35,7 @@ describe('Transport', function() {
             var clk = lolex.install({now: 0}), 
                 t = new Transport({
                     level: 'info',
+                    dirname: './logs/info/',
                     filename: 'test.log',
                     ext: '.log'
                 });
