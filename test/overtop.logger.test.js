@@ -12,7 +12,7 @@ describe('overtop.logger require statement', function() {
 	});
 });
 
-describe.skip('overtop.logger constructor', function() {
+describe('overtop.logger constructor', function() {
 	it('should throw an error if an object is not passed in as an argument [number]', function() {
 		assert.throws(() => {
 			var x = new Logger(123);
@@ -48,14 +48,14 @@ describe.skip('overtop.logger constructor', function() {
 			level: 'info',
 			format: 'json',
 			transports: [
-				{type: 'file', dirname: logFiles.dir, filepath: logFiles.info, level: 'info'}
+				{type: 'file', dirname: logFiles.dir, filename: logFiles.info, level: 'info'}
 			]
 		}), x = log.handle();
 		assert.isOk(x);
 	});
 });
 
-describe.skip('Writing to the logs', function() {
+describe('Writing to the logs', function() {
 	var log = null, 
 		lolexClock = null,
 		req = {
@@ -78,7 +78,7 @@ describe.skip('Writing to the logs', function() {
 			level: 'info',
 			format: 'json',
 			transports: [
-				{type: 'file', dirname: logFiles.dir, filepath: logFiles.info, level: 'info'}
+				{type: 'file', dirname: logFiles.dir, filename: logFiles.info, level: 'info'}
 			]
 		});
 	});
@@ -103,12 +103,12 @@ describe.skip('Writing to the logs', function() {
 		log.log('info', 200, req);
 		lolexClock.setSystemTime(Date.now() + (1000*60*60*24));
 		log.log('info', 200, req);
-		fs.open('./test_1969_12_31_Wed.log', 'r', (err, fd) => {
+		fs.open('./logs/info/test_1969_12_31_Wed.log', 'r', (err, fd) => {
 			if(err) {
 				done(err);
 			}else{
 				var fd1 = fd;
-				fs.open('./test_1970_01_01_Thur.log', 'r', (err, fd) => {
+				fs.open('./logs/info/test_1970_01_01_Thur.log', 'r', (err, fd) => {
 					if(err) {
 						done(err);
 					}else{

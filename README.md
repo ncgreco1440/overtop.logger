@@ -5,7 +5,7 @@ Author: Nico Greco
 
 Contact: nico@nicogreco.com
 
-Version: 1.1.0
+Version: 1.1.1
 
 Logging mechanism for Overtop NodeJS applications
 ---

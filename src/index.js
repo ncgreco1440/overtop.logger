@@ -47,9 +47,9 @@ const removeTransports = function() {
 
 const updateTransports = function() {
 	this.$$removeTransports();
-	this.infoTransport.update(this.winstonHandle);
-	this.errorTransport.update(this.winstonHandle);
-	this.warningTransport.update(this.winstonHandle);
+	if(this.infoTransport) this.infoTransport.update(this.winstonHandle);
+	if(this.errorTransport) this.errorTransport.update(this.winstonHandle);
+	if(this.warningTransport) this.warningTransport.update(this.winstonHandle);
 	this.$$addTransports();
 };
 
