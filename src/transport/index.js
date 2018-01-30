@@ -1,5 +1,6 @@
 var winston = require('winston');
 var clock = require('./../clock');
+var mkdirp = require('mkdirp');
 
 const generateFilename = function() {
     return this.dirname + 
@@ -13,9 +14,8 @@ const generateFilename = function() {
 var Transport = function(t) {
     this.$$generateFilename = generateFilename.bind(this);
 
-    this.dirname = t.dirname;
     this.filepath = t.filename;
-    this.fileInfo = t.filename.split('.')
+    this.fileInfo = t.filename.split('.');
 
     Object.defineProperty(this, 'ext', {
         value: t.extension || t.ext,
@@ -31,6 +31,8 @@ var Transport = function(t) {
         configurable: false
     });
 
+    mkdirp.sync(t.dirname, 0o666);
+    this.dirname = t.dirname;
     this.handle = new winston.transports.File({
         filename: this.$$generateFilename(),
         level: this.level
